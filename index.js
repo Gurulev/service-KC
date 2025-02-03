@@ -1,8 +1,8 @@
 const http = require("http");
 const fs = require("fs");
-//const { encode } = require("punycode");
-//проверка изменений
+const formidable = require("formidable");
 let prevId = 0;
+
 /*function checkPg (response) {
     const { Client } = require('pg');
     const checkClient = new Client({
@@ -37,9 +37,9 @@ setInterval(checkPg, 5000);*/
 
 const server = http.createServer(function (request, response) {
     console.log(`Запрошенный адрес: ${request.url}`);
-    const filePath = request.url.substring(1); // здесь получаем название запрос, напр."hello"
+    const reqPath = request.url.substring(1); // здесь получаем название запрос, напр."hello"
     //Далее начинается обработка запроса и отправка ответа.
-    let elementFile = filePath.slice(0, 5);
+    let elementFile = reqPath.slice(0, 5);
     const { Client } = require('pg');
     const client = new Client({
     host: "localhost",
@@ -47,27 +47,27 @@ const server = http.createServer(function (request, response) {
     password: "15426378",
     database: "kc-service",
     });
-    if (filePath === "") {
+    if (reqPath === "") {
         fs.readFile("index.html", function (error, data) {
             response.end(data);   
         });
     }
-    else if (filePath === "styles.css") {
+    else if (reqPath === "styles.css") {
         fs.readFile("styles.css", function (error, data) {
             response.end(data);   
         });
     }
-    else if (filePath === "scripts.js") {
+    else if (reqPath === "scripts.js") {
         fs.readFile("scripts.js", function (error, data) {
             response.end(data);   
         });
     }
     else if (elementFile == "icons") {
-        fs.readFile(filePath, function (error, data) {
+        fs.readFile(reqPath, function (error, data) {
             response.end(data);   
         });
     }
-    else if (filePath === "sql") {      
+    else if (reqPath === "sql") {      
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
@@ -82,7 +82,7 @@ const server = http.createServer(function (request, response) {
         client.end();
     });          
     }
-    else if (filePath === "index") {
+    else if (reqPath === "index") {
         let data = "";
         request.on("data", (chunk) => { //здесь приходят данные формы
             data += chunk;
@@ -138,7 +138,7 @@ const server = http.createServer(function (request, response) {
         response.end();
     }
     
-    else if (filePath === "update") { //данные из изменения элемента таблицы
+    else if (reqPath === "update") { //данные из изменения элемента таблицы
         let data = "";
         request.on("data", (chunk) => { //здесь приходят данные формы
             data += chunk;
@@ -170,13 +170,12 @@ const server = http.createServer(function (request, response) {
         response.setHeader('Location', '/');
         response.end();
     }
-    else if (filePath === "check") {
+    else if (reqPath === "check") {
         if (request.headers.accept && request.headers.accept === "text/event-stream") {
-                         
-                client.connect()
-                    .then(() => console.log("Checked"))
-                    .catch(err => console.error("Connection error", err.stack));
-                setInterval(()=> {       
+            client.connect()
+                .then(() => console.log("Checked"))
+                .catch(err => console.error("Connection error", err.stack));
+            setInterval(() => {
                 client.query('SELECT id_order FROM orders ORDER BY orders DESC LIMIT 1;', (err, result) => {
                     if (err) {
                         console.error(err);
@@ -193,13 +192,33 @@ const server = http.createServer(function (request, response) {
                     }
                     //client.end();
                 });
-            },5000);  
-        }
-        else {
-            response.writeHead(400);
-            response.end("Что-то пошло не так");
+            }, 5000);
         }
     }
+    else if (reqPath == "upload") {
+        let formFile = new formidable.IncomingForm();
+        formFile.parse(request, function (err, fields, files) {
+            let id = fields.id_order[0];
+            for (let i = 0; files.file.length > i; i++) {
+                let oldpath = files.file[i].filepath;
+                let oldName = files.file[i].originalFilename;
+                let point = oldName.lastIndexOf(".");
+                let exp = oldName.substring(point);
+                let newpath = `C:/Users/russi/Desktop/service-KC/images/${id}_${i+1}${exp}`;
+                fs.rename(oldpath, newpath, function (err) {
+                    if (err) throw err;
+                });
+            }
+                response.statusCode = 301;
+                response.setHeader('Location', '/');
+                response.end();
+            if (err) {
+                res.write(err);
+            }
+            })
+        }
+        
+    
         
     else {       
         response.statusCode = 404;
