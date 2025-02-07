@@ -1,7 +1,8 @@
+let tooltip = document.querySelector("#tooltip");
+
 let ansServ = document.querySelector("#ansServ");
 let addBtn = document.querySelector("#add");
 let fieldset = document.querySelector("fieldset");
-let tooltip = document.querySelector("#tooltip");
 let manInput = document.querySelector("#manInput");
 let manLabel = document.querySelector("#manLabel");
 let form = document.querySelector("#formAdd");
@@ -11,6 +12,7 @@ let phoneInput = form.querySelector("#phone");
 let deviceInput = form.querySelector("#device");
 let clientInput = form.querySelector("#client");
 let docsInput = form.querySelector("#docs");
+
 let addItemCont = document.querySelector("#addItemContainer");
 let closeAddItem = document.querySelector("#closeAddItem");
 let inputAddItem = document.querySelector("#inputAddItem");
@@ -19,13 +21,27 @@ let jobItem = document.querySelector("#jobItem");
 let manInputItem = document.querySelector("#manInputItem");
 let manLabelItem = document.querySelector("#manLabelItem");
 let commentItem = document.querySelector("#commentItem");
+let addItem = document.querySelector("#addItem");
+let submitAddItem = document.querySelector("#submitAddItem");
+
 let srchInput = document.querySelector("#search");
 let srchBtn = document.querySelector("#srchBtn");
+
+let arrPaths = [];
+let currentNumb;
+let totalImg;
+let modal = document.querySelector("#myModal");
+let slideCont = document.querySelector("#slideshow-container");
+let prev = document.querySelector("#prev");
+let next = document.querySelector("#next");
+let close = document.querySelector("#close");
+
+
 let colorRow;
 
 const revision = new EventSource("/check");
 revision.onmessage = (event) => {
-  //Здесь обработка ответа сеервера
+  //Здесь обработка ответа сервера
     alert(event.data);
 };
 
@@ -71,6 +87,7 @@ async function requestToSQL() {
         let dateReady = datasql[i].ready;
         let com = datasql[i].comment;
         let call = datasql[i].call;
+        
         if (dateIn == null) {
             arrayDatesIn.push("");
         } else {
@@ -118,9 +135,16 @@ async function requestToSQL() {
             arrayCall.push(fullCall);
             arrayComments[i] += ` Клиент уведомлен: ${fullCall}.`;
         }
+
     }   
     
     for (let i = 0; i < datasql.length; i++) {
+        let img
+        if (datasql[i].img !== null) {
+            img = "icons/imgyes.png";
+        } else {
+            img = "icons/imgno.png";
+        }
         table +=
         `<tr>
             <td class="col1">${datasql[i].id_order}</td>
@@ -134,14 +158,15 @@ async function requestToSQL() {
             <td class="col9">${arrayDocs[i]}</td>
             <td class="col10">${arrayReady[i]}</td>
             <td class="col11">${arrayCall[i]}</td>
+            <td class="col12"><img class="foto" src="${img}" alt="foto" style="width:45%"></img></td>
         </tr>`;
     }
     
     ansServ.innerHTML =
     `<tr>
             <th class="col1">Наряд</th>
-            <th class="col2">Дата приемки</th>
-            <th class="col3">Дата выдачи</th>
+            <th class="col2">Дата<br>приемки</th>
+            <th class="col3">Дата<br>выдачи</th>
             <th class="col4">Работы</th>
             <th class="col5">Комментарии</th>
             <th class="col6">Телефон</th>
@@ -150,6 +175,7 @@ async function requestToSQL() {
             <th class="col9">Документы</th>
             <th class="col10">Аппарат</th>
             <th class="col11"></th>
+            <th class="col12"></th>
         </tr>
         ${table}`;
     // tr background style
@@ -228,27 +254,38 @@ function disabledDocs() {
 }
 
 function addItemShow(event) {
+    let target = event.target;
+    let itemClass = target.className;
+    if (itemClass == "foto" && target.getAttribute("src") == "icons/imgyes.png") {
+            modalShow(event);
+            return
+        }
+    let text = target.innerHTML;
     let windWidth = document.documentElement.clientWidth;
     let windHeight = document.documentElement.clientHeight;
-    let target = event.target;
-    let text = target.innerHTML;
-    let itemClass = target.className;
     let valueIdOrder = Number(target.parentElement.firstElementChild.innerHTML);
-    console.log();
+    let valueIdOrderAlt = Number(event.target.parentElement.parentElement.firstElementChild.innerHTML);
     let posX = event.clientX;
     let posY = event.clientY;
         
     if (event.target != event.currentTarget) {
-        idOrderItem.value = valueIdOrder;
+        if (valueIdOrder == 0) {
+            idOrderItem.value = valueIdOrderAlt;
+        } else {
+            idOrderItem.value = valueIdOrder;
+        }
         addItemCont.style.display = "inline-block";
         switch (itemClass) {
             case "col1":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
                 commentItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = true;
                 manInputItem.style.display = "none";
                 manLabelItem.disabled = true;
@@ -260,12 +297,15 @@ function addItemShow(event) {
                 inputAddItem.title = "дд.мм.гггг";
                 break;
             case "col2":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
                 commentItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = true;
                 manInputItem.style.display = "none";
                 manLabelItem.disabled = true;
@@ -277,12 +317,15 @@ function addItemShow(event) {
                 inputAddItem.title = "дд.мм.гггг";
                 break;
             case "col3":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
                 commentItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = true;
                 manInputItem.style.display = "none";
                 manLabelItem.disabled = true;
@@ -294,6 +337,9 @@ function addItemShow(event) {
                 inputAddItem.title = "дд.мм.гггг";
                 break;
             case "col4":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = true;
                 inputAddItem.style.display = "none";
                 commentItem.disabled = true;
@@ -307,10 +353,13 @@ function addItemShow(event) {
                 jobItem.style.display = "initial";
                 break;
             case "col5":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = true;
                 inputAddItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = true;
                 manInputItem.style.display = "none";
                 manLabelItem.disabled = true;
@@ -321,12 +370,15 @@ function addItemShow(event) {
                 commentItem.focus();
                 break;
             case "col6":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
                 commentItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = true;
                 manInputItem.style.display = "none";
                 manLabelItem.disabled = true;
@@ -339,12 +391,15 @@ function addItemShow(event) {
                 inputAddItem.title = "9#########";
                 break;
             case "col7":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
                 commentItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = true;
                 manInputItem.style.display = "none";
                 manLabelItem.disabled = true;
@@ -356,12 +411,15 @@ function addItemShow(event) {
                 inputAddItem.removeAttribute("title");
                 break;
             case "col8":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
                 commentItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = true;
                 manInputItem.style.display = "none";
                 manLabelItem.disabled = true;
@@ -373,12 +431,15 @@ function addItemShow(event) {
                 inputAddItem.placeholder = "Ф.И.О. клиента";
                 break;
             case "col9":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
                 commentItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = false;
                 manInputItem.style.display = "initial";
                 manLabelItem.disabled = false;
@@ -390,12 +451,15 @@ function addItemShow(event) {
                 inputAddItem.title = "дд.мм.гггг";
                 break;
             case "col10":
+                addItem.removeAttribute("enctype");
+                addItem.action = "update";
+                submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
                 commentItem.style.display = "none";
                 jobItem.disabled = true;
-                jobItem.style.display = "none"
+                jobItem.style.display = "none";
                 manInputItem.disabled = true;
                 manInputItem.style.display = "none";
                 manLabelItem.disabled = true;
@@ -405,6 +469,27 @@ function addItemShow(event) {
                 inputAddItem.placeholder = "Дата готовности";
                 inputAddItem.pattern = "[0-3]{1}[0-9]{1}[.][0-1]{1}[0-9]{1}[.][0-9]{4}";
                 inputAddItem.title = "дд.мм.гггг";
+                break;
+            case "foto":
+                inputAddItem.disabled = false;
+                inputAddItem.style.display = "initial";
+                commentItem.disabled = true;
+                commentItem.style.display = "none";
+                jobItem.disabled = true;
+                jobItem.style.display = "none";
+                manInputItem.disabled = true;
+                manInputItem.style.display = "none";
+                manLabelItem.disabled = true;
+                manLabelItem.style.display = "none";
+                inputAddItem.type = "file";
+                inputAddItem.name = "file";
+                inputAddItem.multiple = true;
+                inputAddItem.removeAttribute("pattern");
+                inputAddItem.removeAttribute("title");
+                inputAddItem.removeAttribute("placeholder");
+                addItem.enctype = "multipart/form-data";
+                addItem.action = "upload";
+                submitAddItem.value = "Загрузить";
                 break;
             default:
                 break;
@@ -477,11 +562,58 @@ function searchShow() {
     else {
         srchInput.style.display = "none";
     }
-
 }
 
-
-
+function modalShow(event) {
+    let id = Number(event.target.parentElement.parentElement.firstElementChild.innerHTML);
+    path();
+    async function path() {
+        const response = await fetch("/paths/" + id);
+        const responseText = await response.text();
+        modal.style.display = "block";
+        arrPaths = responseText.split("*");
+        totalImg = arrPaths.length - 1;
+        slideCont.innerHTML =
+            `<div class="myslides fade">
+    <div id="numberText">1/${totalImg}</div>
+    <img id="modal-content" src="${arrPaths[0]}" alt="img">
+    <div id="text">${arrPaths[0].substring(arrPaths[0].lastIndexOf("/") + 1)}</div>
+    </div>
+    <a id="prev">&#10094;</a>
+    <a id="next">&#10095;</a>
+    <span id="close">&times;</span>
+    </div>`;
+        document.querySelector("#next").addEventListener("click", nextImg, false);
+        document.querySelector("#prev").addEventListener("click", prevImg, false);
+        document.querySelector("#close").addEventListener("click", modalClose, false);
+        currentNumb = 1;
+    }   
+}
+function nextImg() {
+    if (totalImg > currentNumb) {
+        let nextNumb = currentNumb + 1;
+        document.querySelector("#numberText").innerHTML = `${nextNumb++}/${totalImg}`;
+        document.querySelector("#modal-content").src = arrPaths[currentNumb];
+        document.querySelector("#text").innerHTML = `${arrPaths[currentNumb].substring(arrPaths[currentNumb].lastIndexOf("/") + 1)}`;
+        currentNumb = currentNumb + 1;
+    } else {
+        return
+    }
+}
+function prevImg() {
+    if (currentNumb>1) {
+        let prevNumb = currentNumb - 1;
+        document.querySelector("#numberText").innerHTML = `${prevNumb--}/${totalImg}`;
+        document.querySelector("#modal-content").src = arrPaths[prevNumb];
+        document.querySelector("#text").innerHTML = `${arrPaths[prevNumb].substring(arrPaths[prevNumb].lastIndexOf("/") + 1)}`;
+        currentNumb = currentNumb - 1;
+    } else {
+        return
+    }
+}
+function modalClose() {
+    modal.style.display = "none";
+}
   
 document.addEventListener("DOMContentLoaded", requestToSQL, false);
 addBtn.addEventListener("click", fieldsetShow,false);
@@ -494,3 +626,4 @@ ansServ.addEventListener("mouseover", bgRowHover, false);
 ansServ.addEventListener("mouseout", bgRowOut, false);
 srchInput.addEventListener("keyup", search);
 srchBtn.addEventListener("click", searchShow, false);
+

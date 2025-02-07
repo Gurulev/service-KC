@@ -30,8 +30,8 @@ h1 {
     width: 50%;
     display: inline-block;
     padding: 1rem 0 1rem 1rem;
-    color: var(--black);
-    text-shadow: 2px 0px 5px var(--turquoiseClear);
+    color: var(--white);
+    text-shadow: 2px 0px 5px var(--black);
 }
 #kc {
     padding-right: 1rem;
@@ -174,21 +174,34 @@ table {
     width: 100%;
 }
 .col1{width: 5%;}
-.col2{width: 10%;}
-.col3{width: 10%;}
+.col2{width: 8%;}
+.col3{width: 8%;}
 .col4{width: 7%;}
 .col5{width: 15%;}
 .col6{width: 9%;}
 .col7{width: 9%;}
 .col8{width: 15%;}
 .col9{width: 10%;}
-.col10{width: 10%;}
+.col10{width: 8%;}
 .col11 {display: none;}
+.col12{
+    width: 6%;
+    padding: 0;       
+}
+td.col2, td.col3, td.col6, td.col9, td.col10, td.col12 {
+    text-align: center;
+}
+.foto:hover {
+    cursor: pointer;
+}
 table, th, td {
     border-collapse: collapse;
     padding: 0.5em;
     margin: auto;
     text-align: left;    
+}
+th {
+    text-align: center;
 }
 tr {
 border-bottom: 0.01rem solid var(--gray);
@@ -229,8 +242,109 @@ th,td {
     padding: 0.5em;
     font-size: large;
 }
+/*---- Модальное окно*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 2rem;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--black);
+    background-color: rgba(0, 0, 0, 0.9);
+}
+#modal-content {
+    display: none;
+    margin: auto;
+    display: block;
+    width: auto;
+    max-height: 90vh;
+}
+#modal-content {
+    animation: zoom 0.6s;
+}
 
 
+#slideshow-container {
+    max-width: 80%;
+    position: relative;
+    margin: auto;
+    z-index: 1;
+}
+.mySlides {
+    display: none;
+}
+#prev, #next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    margin-top: -22px;
+    padding: 16px;
+    color: var(--white);
+    font-weight: bold;
+    font-size: 2em;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0;
+    user-select: none;
+}
+#next {
+    right: 0;
+    border-radius: 3px 0 0 3px;
+}
+#prev:hover, #next:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+#text {
+    color: var(--white);
+    font-size: 1em;
+    padding: 0.5em 1em;
+    position: absolute;
+    bottom: 1em;
+    width: 100%;
+    text-align: center;
+    text-shadow: 2px 0px 5px var(--black);
+}
+#numberText {
+    color: var(--white);
+    font-size: 1em;
+    padding: 1em 1.5em;
+    position: absolute;
+    top: 0;
+}
+.fade {
+    animation: fade 1.5s;
+}
+#close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: var(--white);
+    font-size: 40px;
+    font-weight: bold;
+    user-select: none;
+    transition: 0.3s;
+}
+#close:hover, #close:focus {
+    color: var(--gray);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+
+/*---- Конец модального окна*/
+@keyframes fade {
+    from {opacity: .4;}
+    to {opacity: 1;}
+}
+@keyframes zoom {
+    from {transform: scale(0)}
+    to {transform: scale(1)}
+}
 
 @keyframes open {
     from {opacity:0;}
@@ -239,4 +353,9 @@ th,td {
 @keyframes closed {
     from {opacity:1;}
     to {opacity: 0;}
+}
+@media only screen and (max-width: 700px) {
+    #modal-content {
+        width: 100%;
+    }
 }

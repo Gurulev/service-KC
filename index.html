@@ -14,15 +14,19 @@
     <header>
         <h1>СЕРВИС</h1><h1 id="kc">Керхер-Центр "Виктория-авто"</h1> 
     </header>
+    
     <ul id="menu">
         <li id ="add" class="elMenu">Добавить</li>
         <li id = "srchBtn" class="elMenu">Поиск</li>
     </ul>
-<form id="formFile" action="upload" method="POST" enctype="multipart/form-data">
-    <input type="hidden" id="idFiles" name="id_order" value="3999">
-    <input type="file" id="file" name="file" multiple>
-    <input type="submit">
-</form>
+
+
+<div id="myModal" class="modal">
+    <div id="slideshow-container">
+    </div>
+</div>
+
+
     <span class="tooltip" id="tooltip">Всплывающая подсказка</span>
     <div id="addItemContainer">
         <form id="addItem" action="update" method="POST" accept-charset="UTF-8" autocomplete="off">

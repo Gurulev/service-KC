@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const formidable = require("formidable");
+const { ifError } = require("assert");
 let prevId = 0;
 
 /*function checkPg (response) {
@@ -39,7 +40,9 @@ const server = http.createServer(function (request, response) {
     console.log(`Запрошенный адрес: ${request.url}`);
     const reqPath = request.url.substring(1); // здесь получаем название запрос, напр."hello"
     //Далее начинается обработка запроса и отправка ответа.
-    let elementFile = reqPath.slice(0, 5);
+    let elementFile = reqPath.slice(0, reqPath.lastIndexOf("/"));
+    let lastQuery = reqPath.substring(reqPath.lastIndexOf("/")+1);
+//    console.log("zhopa:" + lastQuery);
     const { Client } = require('pg');
     const client = new Client({
     host: "localhost",
@@ -63,6 +66,11 @@ const server = http.createServer(function (request, response) {
         });
     }
     else if (elementFile == "icons") {
+        fs.readFile(reqPath, function (error, data) {
+            response.end(data);   
+        });
+    }
+    else if (elementFile == "images") {
         fs.readFile(reqPath, function (error, data) {
             response.end(data);   
         });
@@ -195,10 +203,30 @@ const server = http.createServer(function (request, response) {
             }, 5000);
         }
     }
+    else if (elementFile === "paths") {      
+        client.connect()
+            .then(() => console.log("Connected to PostgreSQL"))
+            .catch(err => console.error("Connection error", err.stack));
+        client.query('SELECT img FROM orders WHERE id_order ='+lastQuery, (err, result) => {
+            if (err) {
+            console.error(err);
+            return;
+            }
+            console.log("Answer SQL complete");
+            response.end(result.rows[0].img);
+        client.end();
+    });          
+    }
     else if (reqPath == "upload") {
         let formFile = new formidable.IncomingForm();
         formFile.parse(request, function (err, fields, files) {
+            if (Object.keys(fields).length === 0) {
+                response.statusCode = 400;
+                response.end("Invalid request");
+                return
+            }
             let id = fields.id_order[0];
+            let imagePaths = [];
             for (let i = 0; files.file.length > i; i++) {
                 let oldpath = files.file[i].filepath;
                 let oldName = files.file[i].originalFilename;
@@ -208,7 +236,21 @@ const server = http.createServer(function (request, response) {
                 fs.rename(oldpath, newpath, function (err) {
                     if (err) throw err;
                 });
+                imagePaths += `images/${id}_${i+1}${exp}*`;
             }
+            let dataQuery = `UPDATE orders SET img = '${imagePaths}' WHERE id_order = ${id};`;
+            client.connect()
+                .then(() => console.log("Connected to PostgreSQL for adding data"))
+                .catch(err => console.error("Connection error", err.stack));
+            
+            client.query(dataQuery, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+            console.log("Adding complete");          
+            client.end();
+        });
                 response.statusCode = 301;
                 response.setHeader('Location', '/');
                 response.end();
