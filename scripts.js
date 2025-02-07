@@ -25,7 +25,9 @@ let addItem = document.querySelector("#addItem");
 let submitAddItem = document.querySelector("#submitAddItem");
 
 let srchInput = document.querySelector("#search");
+let searchCont = document.querySelector("#searchCont");
 let srchBtn = document.querySelector("#srchBtn");
+let outs = document.querySelector("#outs");
 
 let arrPaths = [];
 let currentNumb;
@@ -203,7 +205,7 @@ function fieldsetShow() {
     let nextOrder = Number(previousOrder) + 1;    
     if (fieldsetStatus == "none") {
         document.querySelector("legend").innerHTML = `<b>Новая запись №${nextOrder}</b>`;   
-        srchInput.style.display = "none"
+        searchCont.style.display = "none"
         fieldset.style.display = "block";
         fieldset.style.animation = "open 2s ease";
         dateInInput.focus();        
@@ -242,7 +244,6 @@ function disabledDocsItem() {
 }
 
 function disabledDocs() {
-    console.log(manInput.checked);
     if (manInput.checked === true) {      
         docsInput.value = "01.01.1900";
         docsInput.style.visibility = "hidden";
@@ -532,10 +533,8 @@ function bgRowOut(event) {
     }
 }
 function search() {
-    let search = document.querySelector("#search");
-    let filter = search.value.toUpperCase();
-    let table = document.querySelector("#ansServ");
-    let tr = table.querySelectorAll("tr");
+    let filter = srchInput.value.toUpperCase();
+    let tr = ansServ.querySelectorAll("tr");
     for (i = 0; i < tr.length; i++) {
         let tdOrd = tr[i].querySelectorAll("td")[0];
         let tdPh = tr[i].querySelectorAll("td")[5];
@@ -551,16 +550,36 @@ function search() {
         }
       }       
     }
-  }
+}
+  
+function outsOrders() {
+    if (outs.checked === true) {
+        let tr = ansServ.querySelectorAll("tr");
+        for (i = 0; i < tr.length; i++) {
+            let tdOrd = tr[i].querySelectorAll("td")[2];
+            if (tdOrd) {
+                let txtValueOrd = tdOrd.textContent || tdOrd.innerText;
+                if (txtValueOrd !== "") {
+                    tr[i].style.display = "none";
+                } else {
+                    tr[i].style.display = "";
+                }
+            }
+        }
+    } else { requestToSQL(); }
+}
+
+
 function searchShow() {
-    let srchStatus = srchInput.style.display;
+    let srchStatus = searchCont.style.display;
     if (srchStatus == "none") {
         fieldset.style.display = "none";
-        srchInput.style.display = "block";
-        srchInput.focus();        
+        searchCont.style.display = "block";
+        srchInput.focus();
+        outs.style.margin = "0.3em 0.3em 0.3em 2em"
     }
     else {
-        srchInput.style.display = "none";
+        searchCont.style.display = "none";
     }
 }
 
@@ -626,4 +645,4 @@ ansServ.addEventListener("mouseover", bgRowHover, false);
 ansServ.addEventListener("mouseout", bgRowOut, false);
 srchInput.addEventListener("keyup", search);
 srchBtn.addEventListener("click", searchShow, false);
-
+outs.addEventListener("click", outsOrders, false);

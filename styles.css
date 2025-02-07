@@ -235,13 +235,16 @@ th,td {
 }
 
 /*---- Конец всплывающей подсказки*/
-#search {
+#searchCont {
     display: none;
+}
+#search {
     position: relative;
     left: 1%;      
     padding: 0.5em;
     font-size: large;
 }
+
 /*---- Модальное окно*/
 .modal {
     display: none;
