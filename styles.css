@@ -337,9 +337,37 @@ th,td {
     cursor: pointer;
 }
 
-
-
 /*---- Конец модального окна*/
+
+footer {
+    position: relative;
+    background-color: var(--yellow);
+    height: 4rem;
+    border-top: 0.25rem solid var(--turquoiseClear);
+    margin-top: 1.5rem;
+}
+footer button {
+    display: block;
+    position: absolute;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color:var(--turquoiseClear);
+    padding: 0.3rem 0.5rem 0.3rem 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--white);
+    border: 0.1em solid var(--turquoise);
+    border-radius: 1rem;
+    user-select: none;
+}
+footer button:active {
+    box-shadow: 0.1em 0.1em 0.5em var(--gray);
+    transform: translate(-50%, -40%);
+}
+
+
+
 @keyframes fade {
     from {opacity: .4;}
     to {opacity: 1;}

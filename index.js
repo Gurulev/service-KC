@@ -79,7 +79,7 @@ const server = http.createServer(function (request, response) {
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
-        client.query('SELECT * FROM orders ORDER BY orders DESC', (err, result) => {
+        client.query('SELECT * FROM orders ORDER BY orders DESC LIMIT 30', (err, result) => {
             if (err) {
             console.error(err);
             return;

@@ -72,68 +72,7 @@
     <table>
         <tbody id="ansServ"></tbody>
     </table>
-   <!--
-    <script>
-        async function proba(){
-            const response = await fetch("/hello");
-            const responseText = await response.text();
-            console.log(responseText);
-        
-        
-        }
-        async function proba2() {
-
-            const response = await fetch("/sql");
-            const responseText = await response.text();
-            const datasql = JSON.parse(responseText);
-
-            let table = "";
-            for (let i = 0; i < datasql.length; i++) {
-                table +=
-                `<tr>
-                    <td class="col1"> ${datasql[i].id_order}</td>
-                    <td class="col2"> ${datasql[i].date_in}</td>
-                    <td class="col3"> ${datasql[i].date_out}</td>
-                    <td class="col4"> ${datasql[i].job}</td>
-                    <td class="col5"> ${datasql[i].comment}</td>
-                    <td class="col6"> ${datasql[i].phone}</td>
-                    <td class="col7"> ${datasql[i].device}</td>
-                    <td class="col8"> ${datasql[i].client}</td>
-                    <td class="col9"> ${datasql[i].docs}</td>
-                    <td class="col10"> ${datasql[i].ready}</td>
-                </tr>`
-            } 
-
-
-
-
-            document.getElementById("ansServ").innerHTML = 
-            `<tr>
-                <th class="col1">Наряд</th>
-                <th class="col2">Дата приемки</th>
-                <th class="col3">Дата выдачи</th>
-                <th class="col4">Работы</th>
-                <th class="col5">Комментарии</th>
-                <th class="col6">Телефон</th>
-                <th class="col7">Аппарат</th>
-                <th class="col8">Ф.И.О.</th>
-                <th class="col9">Документы</th>
-                <th class="col10">Аппарат</th>
-            </tr>
-            ${table}`;
-            console.log (datasql.length);
-            
-        }
-
-
-
-        const firstBtn = document.getElementById("first");
-        firstBtn.addEventListener("click", proba);
-        const secondBtn = document.getElementById("second");
-        secondBtn.addEventListener("click", proba2);
-     
-    </script>
-    -->
+   <footer><button id="more">Загрузить ещё 100 позиций</button></footer>
 
     <script src="scripts.js"></script>
 </body>
