@@ -235,16 +235,37 @@ th,td {
 }
 
 /*---- Конец всплывающей подсказки*/
+/* ---- Поиск---*/
 #searchCont {
     display: none;
+    border-bottom: 0.2rem solid var(--turquoise);
 }
-#search {
+#searchCont input {
     position: relative;
     left: 1%;      
     padding: 0.5em;
     font-size: large;
+    
+}
+#searchCont button {
+    font-size: 1em;
+    margin: 0 0 0 0.75em;
+    box-shadow: 0.1em 0.1em 0.5em var(--gray);
+    cursor: pointer;
+    padding: 0.4em 0.4em;
+    border: none;
+    background-color: var(--turquoise);
+    border-radius: 5px;
+}
+#searchCont button:active {
+    transform: translateY(3px);
+}
+#outsLabel {
+font-size: 1em;
+margin: 0 0 0 0.5em;
 }
 
+/* ---- Конец поиска---*/
 /*---- Модальное окно*/
 .modal {
     display: none;
@@ -365,9 +386,28 @@ footer button:active {
     box-shadow: 0.1em 0.1em 0.5em var(--gray);
     transform: translate(-50%, -40%);
 }
-
-
-
+/* --- Кнопка вверх--*/
+#toTop {
+    display: none;
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 99;
+    font-size: 1rem;
+    border: none;
+    outline: none;
+    font-weight: bold;
+    background-color: var(--redClear);
+    color: white;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem 0.3rem 0.5rem;
+    border-radius: 1rem;
+  }
+  
+  #toTop:hover {
+    background-color: var(--gray);
+  }
+/* --- Конец кнопки вверх--*/
 @keyframes fade {
     from {opacity: .4;}
     to {opacity: 1;}

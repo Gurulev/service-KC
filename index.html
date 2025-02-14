@@ -65,13 +65,18 @@
     </form>
 
     <div id="searchCont">
-    <input type="text" id="search" style="width: 25rem;" placeholder="Поиск по наряд-заказу, телефону и фамилии...">
-    <input type="checkbox" id="outs" style="width: 1em;">
-            <label id = "outsLabel" for="outs">Невыданные н/з</label>
+        <input type="date" id="dateStart">
+        <input type="date" id="dateEnd">
+        <button id="filterBtn">Применить</button>
+        <input type="text" id="search" style="width: 25rem;" placeholder="Поиск по наряд-заказу, телефону и фамилии..." autocomplete="off">
+        <input type="checkbox" id="outs" style="width: 1.25em;">
+        <label id = "outsLabel" for="outs">Невыданные н/з</label>
     </div>
+    
     <table>
         <tbody id="ansServ"></tbody>
     </table>
+    <button id="toTop" title="Вверх">В начало</button>
    <footer><button id="more">Загрузить ещё 100 позиций</button></footer>
 
     <script src="scripts.js"></script>

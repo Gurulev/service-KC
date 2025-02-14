@@ -29,6 +29,10 @@ let searchCont = document.querySelector("#searchCont");
 let srchBtn = document.querySelector("#srchBtn");
 let outs = document.querySelector("#outs");
 
+let dateStart = document.querySelector("#dateStart");
+let dateEnd = document.querySelector("#dateEnd");
+let filterBtn = document.querySelector("#filterBtn");
+
 let arrPaths = [];
 let currentNumb;
 let totalImg;
@@ -38,6 +42,10 @@ let prev = document.querySelector("#prev");
 let next = document.querySelector("#next");
 let close = document.querySelector("#close");
 
+let moreBtn = document.querySelector("#more");
+let topBtn = document.querySelector("#toTop");
+
+let formfilter = document.querySelector("#formFilter");
 
 let colorRow;
 
@@ -215,7 +223,6 @@ function fieldsetShow() {
         setTimeout(() => { fieldset.style.display = "none"; }, 700);
     }
 }
-
 function tooltipShow(event) {
     let target = event.target;
     let text = target.innerHTML;
@@ -231,7 +238,6 @@ function tooltipShow(event) {
     event.stopPropagation();
     setTimeout(() => { tooltip.style.display = "none";}, 10000);
 }
-
 function disabledDocsItem() {
     if (manInputItem.checked === true) {
         inputAddItem.value = "01.01.1900";
@@ -242,7 +248,6 @@ function disabledDocsItem() {
         inputAddItem.style.visibility = "visible";
     }
 }
-
 function disabledDocs() {
     if (manInput.checked === true) {      
         docsInput.value = "01.01.1900";
@@ -253,7 +258,6 @@ function disabledDocs() {
         docsInput.style.visibility = "visible";
     }
 }
-
 function addItemShow(event) {
     let target = event.target;
     let itemClass = target.className;
@@ -516,7 +520,6 @@ function addItemHide(event) {
     event.preventDefault();
     addItemCont.style.display = "none";
 }
-
 function bgRowHover(event) {
     let el = event.target.parentElement;
     if (el.tagName == "TR") {
@@ -551,7 +554,6 @@ function search() {
       }       
     }
 }
-  
 function outsOrders() {
     if (outs.checked === true) {
         let tr = ansServ.querySelectorAll("tr");
@@ -567,9 +569,7 @@ function outsOrders() {
             }
         }
     } else { requestToSQL(); }
-}
-
-
+}            
 function searchShow() {
     let srchStatus = searchCont.style.display;
     if (srchStatus == "none") {
@@ -582,7 +582,6 @@ function searchShow() {
         searchCont.style.display = "none";
     }
 }
-
 function modalShow(event) {
     let id = Number(event.target.parentElement.parentElement.firstElementChild.innerHTML);
     path();
@@ -633,7 +632,265 @@ function prevImg() {
 function modalClose() {
     modal.style.display = "none";
 }
-  
+async function more() {
+        let tblRows = ansServ.querySelectorAll("tr").length - 1;
+        const response = await fetch(`/more/${tblRows}`);
+        const responseText = await response.text();
+        const datasql = JSON.parse(responseText);
+        let table = "";
+        const arrayDatesIn = [];
+        const arrayDatesOut = [];
+        const arrayDocs = [];
+        const arrayReady = [];
+        const arrayComments = [];
+        const arrayCall = [];
+        for (let i = 0; i < datasql.length; i++) {
+            let dateIn = datasql[i].date_in;
+            let dateOut = datasql[i].date_out;
+            let dateDocs = datasql[i].docs;
+            let dateReady = datasql[i].ready;
+            let com = datasql[i].comment;
+            let call = datasql[i].call;
+            
+            if (dateIn == null) {
+                arrayDatesIn.push("");
+            } else {
+                let dIn = new Date(dateIn);
+                let fullDateIn = `${days[dIn.getDate()]}.${months[dIn.getMonth()]}.${dIn.getFullYear()}`;
+                arrayDatesIn.push(fullDateIn);
+            }
+            if (dateOut == null) {
+                arrayDatesOut.push("");
+            } else {
+                let dOut = new Date(dateOut);
+                let fullDateOut = `${days[dOut.getDate()]}.${months[dOut.getMonth()]}.${dOut.getFullYear()}`;
+                arrayDatesOut.push(fullDateOut);
+            }
+            if (dateDocs == null) {
+                arrayDocs.push("");
+            } else {
+                let dDocs = new Date(dateDocs);
+                switch (dDocs.getFullYear() ) {
+                    case 1900:
+                        arrayDocs.push("у менеджеров");
+                    break;
+                    default:
+                        let fullDateDocs = `${days[dDocs.getDate()]}.${months[dDocs.getMonth()]}.${dDocs.getFullYear()}`;
+                        arrayDocs.push(fullDateDocs);
+                }
+            }
+            if (dateReady == null) {
+                arrayReady.push("");
+            } else {
+                let dReady = new Date(dateReady);
+                let fullDateReady = `${days[dReady.getDate()]}.${months[dReady.getMonth()]}.${dReady.getFullYear()}`;
+                arrayReady.push(fullDateReady);
+            }
+            if (com == null) {
+                arrayComments.push("");
+            } else {
+                arrayComments.push(com);
+            }
+            if (call == null) {
+                arrayCall.push("");
+            } else {
+                let dCall = new Date(call);
+                let fullCall = `${days[dCall.getDate()]}.${months[dCall.getMonth()]}.${dCall.getFullYear()}`;
+                arrayCall.push(fullCall);
+                arrayComments[i] += ` Клиент уведомлен: ${fullCall}.`;
+            }
+    
+        }   
+        
+        for (let i = 0; i < datasql.length; i++) {
+            let img
+            if (datasql[i].img !== null) {
+                img = "icons/imgyes.png";
+            } else {
+                img = "icons/imgno.png";
+            }
+            table +=
+            `<tr>
+                <td class="col1">${datasql[i].id_order}</td>
+                <td class="col2">${arrayDatesIn[i]}</td>
+                <td class="col3">${arrayDatesOut[i]}</td>
+                <td class="col4">${datasql[i].job}</td>
+                <td class="col5">${arrayComments[i]}</td>
+                <td class="col6">${datasql[i].phone}</td>
+                <td class="col7">${datasql[i].device}</td>
+                <td class="col8">${datasql[i].client}</td>
+                <td class="col9">${arrayDocs[i]}</td>
+                <td class="col10">${arrayReady[i]}</td>
+                <td class="col11">${arrayCall[i]}</td>
+                <td class="col12"><img class="foto" src="${img}" alt="foto" style="width:45%"></img></td>
+            </tr>`;
+        }
+        
+        ansServ.innerHTML += table;
+        // tr background style
+       
+        let nodeList = document.querySelectorAll("tr");
+        for (let i = 1; i < nodeList.length; i++) {
+            let row = nodeList[i];
+            if (row.children[2].innerText !== "") {
+                row.style.backgroundColor = "var(--olive)";
+            }
+            else if (row.children[8].innerText !== "" && row.children[10].innerText !== "") {
+                row.style.backgroundColor = "var(--red)";
+            }
+            else if (row.children[8].innerText !== "" && row.children[9].innerText !== "" && row.children[10].innerText !== "") {
+                row.style.backgroundColor = "var(--red)";
+            }   
+            else if (row.children[8].innerText !== "" || row.children[9].innerText !== "") {
+                row.style.backgroundColor = "var(--yellow)";
+            }      
+        }
+}
+function scrollFunc() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+      topBtn.style.display = "block";
+    } else {
+      topBtn.style.display = "none";
+    }
+}
+function totopFunc() {
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+}
+
+async function filter() {
+        
+    const response = await fetch(`/filter/${dateStart.value}/${dateEnd.value}`);
+    const responseText = await response.text();
+    const datasql = JSON.parse(responseText);
+    let table = "";
+    const arrayDatesIn = [];
+    const arrayDatesOut = [];
+    const arrayDocs = [];
+    const arrayReady = [];
+    const arrayComments = [];
+    const arrayCall = [];
+    for (let i = 0; i < datasql.length; i++) {
+        let dateIn = datasql[i].date_in;
+        let dateOut = datasql[i].date_out;
+        let dateDocs = datasql[i].docs;
+        let dateReady = datasql[i].ready;
+        let com = datasql[i].comment;
+        let call = datasql[i].call;
+        
+        if (dateIn == null) {
+            arrayDatesIn.push("");
+        } else {
+            let dIn = new Date(dateIn);
+            let fullDateIn = `${days[dIn.getDate()]}.${months[dIn.getMonth()]}.${dIn.getFullYear()}`;
+            arrayDatesIn.push(fullDateIn);
+        }
+        if (dateOut == null) {
+            arrayDatesOut.push("");
+        } else {
+            let dOut = new Date(dateOut);
+            let fullDateOut = `${days[dOut.getDate()]}.${months[dOut.getMonth()]}.${dOut.getFullYear()}`;
+            arrayDatesOut.push(fullDateOut);
+        }
+        if (dateDocs == null) {
+            arrayDocs.push("");
+        } else {
+            let dDocs = new Date(dateDocs);
+            switch (dDocs.getFullYear() ) {
+                case 1900:
+                    arrayDocs.push("у менеджеров");
+                break;
+                default:
+                    let fullDateDocs = `${days[dDocs.getDate()]}.${months[dDocs.getMonth()]}.${dDocs.getFullYear()}`;
+                    arrayDocs.push(fullDateDocs);
+            }
+        }
+        if (dateReady == null) {
+            arrayReady.push("");
+        } else {
+            let dReady = new Date(dateReady);
+            let fullDateReady = `${days[dReady.getDate()]}.${months[dReady.getMonth()]}.${dReady.getFullYear()}`;
+            arrayReady.push(fullDateReady);
+        }
+        if (com == null) {
+            arrayComments.push("");
+        } else {
+            arrayComments.push(com);
+        }
+        if (call == null) {
+            arrayCall.push("");
+        } else {
+            let dCall = new Date(call);
+            let fullCall = `${days[dCall.getDate()]}.${months[dCall.getMonth()]}.${dCall.getFullYear()}`;
+            arrayCall.push(fullCall);
+            arrayComments[i] += ` Клиент уведомлен: ${fullCall}.`;
+        }
+
+    }   
+    
+    for (let i = 0; i < datasql.length; i++) {
+        let img
+        if (datasql[i].img !== null) {
+            img = "icons/imgyes.png";
+        } else {
+            img = "icons/imgno.png";
+        }
+        table +=
+        `<tr>
+            <td class="col1">${datasql[i].id_order}</td>
+            <td class="col2">${arrayDatesIn[i]}</td>
+            <td class="col3">${arrayDatesOut[i]}</td>
+            <td class="col4">${datasql[i].job}</td>
+            <td class="col5">${arrayComments[i]}</td>
+            <td class="col6">${datasql[i].phone}</td>
+            <td class="col7">${datasql[i].device}</td>
+            <td class="col8">${datasql[i].client}</td>
+            <td class="col9">${arrayDocs[i]}</td>
+            <td class="col10">${arrayReady[i]}</td>
+            <td class="col11">${arrayCall[i]}</td>
+            <td class="col12"><img class="foto" src="${img}" alt="foto" style="width:45%"></img></td>
+        </tr>`;
+    }
+    
+    ansServ.innerHTML =
+    `<tr>
+            <th class="col1">Наряд</th>
+            <th class="col2">Дата<br>приемки</th>
+            <th class="col3">Дата<br>выдачи</th>
+            <th class="col4">Работы</th>
+            <th class="col5">Комментарии</th>
+            <th class="col6">Телефон</th>
+            <th class="col7">Аппарат</th>
+            <th class="col8">Ф.И.О.</th>
+            <th class="col9">Документы</th>
+            <th class="col10">Аппарат</th>
+            <th class="col11"></th>
+            <th class="col12"></th>
+        </tr>
+        ${table}`;
+    // tr background style
+   
+    let nodeList = document.querySelectorAll("tr");
+    for (let i = 1; i < nodeList.length; i++) {
+        let row = nodeList[i];
+        if (row.children[2].innerText !== "") {
+            row.style.backgroundColor = "var(--olive)";
+        }
+        else if (row.children[8].innerText !== "" && row.children[10].innerText !== "") {
+            row.style.backgroundColor = "var(--red)";
+        }
+        else if (row.children[8].innerText !== "" && row.children[9].innerText !== "" && row.children[10].innerText !== "") {
+            row.style.backgroundColor = "var(--red)";
+        }   
+        else if (row.children[8].innerText !== "" || row.children[9].innerText !== "") {
+            row.style.backgroundColor = "var(--yellow)";
+        }      
+    }
+    } 
+
+
+
+
 document.addEventListener("DOMContentLoaded", requestToSQL, false);
 addBtn.addEventListener("click", fieldsetShow,false);
 manInput.addEventListener("click", disabledDocs);
@@ -646,3 +903,7 @@ ansServ.addEventListener("mouseout", bgRowOut, false);
 srchInput.addEventListener("keyup", search);
 srchBtn.addEventListener("click", searchShow, false);
 outs.addEventListener("click", outsOrders, false);
+moreBtn.addEventListener("click", more, false);
+topBtn.addEventListener("click", totopFunc, false);
+window.onscroll = function () { scrollFunc() };
+filterBtn.addEventListener("click", filter, false);

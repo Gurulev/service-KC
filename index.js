@@ -15,7 +15,7 @@ let prevId = 0;
     checkClient.connect()
         .then(() => console.log("Checked"))
         .catch(err => console.error("Connection error", err.stack));
-    checkClient.query('SELECT id_order FROM orders ORDER BY orders DESC LIMIT 1;', (err, result) => {
+    checkClient.query('SELECT id_order FROM orders ORDER BY id_order DESC LIMIT 1;', (err, result) => {
         if (err) {
             console.error(err);
             return;
@@ -40,46 +40,76 @@ const server = http.createServer(function (request, response) {
     console.log(`Запрошенный адрес: ${request.url}`);
     const reqPath = request.url.substring(1); // здесь получаем название запрос, напр."hello"
     //Далее начинается обработка запроса и отправка ответа.
-    let elementFile = reqPath.slice(0, reqPath.lastIndexOf("/"));
-    let lastQuery = reqPath.substring(reqPath.lastIndexOf("/")+1);
-//    console.log("zhopa:" + lastQuery);
+    const queries = reqPath.split("/");
+    let lastQuery = reqPath.substring(reqPath.lastIndexOf("/") + 1);
+    //console.log("zhopa:" + queries);
     const { Client } = require('pg');
     const client = new Client({
-    host: "localhost",
-    user: "postgres",
-    password: "15426378",
-    database: "kc-service",
+        host: "localhost",
+        user: "postgres",
+        password: "15426378",
+        database: "kc-service",
     });
     if (reqPath === "") {
         fs.readFile("index.html", function (error, data) {
-            response.end(data);   
+            response.end(data);
         });
     }
     else if (reqPath === "styles.css") {
         fs.readFile("styles.css", function (error, data) {
-            response.end(data);   
+            response.end(data);
         });
     }
     else if (reqPath === "scripts.js") {
         fs.readFile("scripts.js", function (error, data) {
-            response.end(data);   
+            response.end(data);
         });
     }
-    else if (elementFile == "icons") {
+    else if (queries[0] == "icons") {
         fs.readFile(reqPath, function (error, data) {
-            response.end(data);   
+            response.end(data);
         });
     }
-    else if (elementFile == "images") {
+    else if (queries[0] == "images") {
         fs.readFile(reqPath, function (error, data) {
-            response.end(data);   
+            response.end(data);
         });
     }
-    else if (reqPath === "sql") {      
+    else if (reqPath === "sql") {
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
-        client.query('SELECT * FROM orders ORDER BY orders DESC LIMIT 30', (err, result) => {
+        client.query('SELECT * FROM orders ORDER BY id_order DESC LIMIT 100', (err, result) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            const answer = JSON.stringify(result.rows);
+            console.log("Answer SQL complete");
+            response.end(answer);
+            client.end();
+        });
+    }
+    else if (queries[0] === "filter") {
+        client.connect()
+            .then(() => console.log("Connected to PostgreSQL"))
+            .catch(err => console.error("Connection error", err.stack));
+        client.query(`SELECT * FROM orders WHERE date_in BETWEEN '${queries[1]}' AND '${queries[2]}' ORDER BY id_order DESC;`, (err, result) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            const answer = JSON.stringify(result.rows);
+            console.log("Answer SQL complete");
+            response.end(answer);
+            client.end();
+        });
+    }
+    else if (queries[0] == "more") {      
+        client.connect()
+            .then(() => console.log("Connected to PostgreSQL"))
+            .catch(err => console.error("Connection error", err.stack));
+        client.query(`SELECT * FROM orders ORDER BY id_order DESC LIMIT 100 OFFSET ${lastQuery}`, (err, result) => {
             if (err) {
             console.error(err);
             return;
@@ -184,7 +214,7 @@ const server = http.createServer(function (request, response) {
                 .then(() => console.log("Checked"))
                 .catch(err => console.error("Connection error", err.stack));
             setInterval(() => {
-                client.query('SELECT id_order FROM orders ORDER BY orders DESC LIMIT 1;', (err, result) => {
+                client.query('SELECT id_order FROM orders ORDER BY id_order DESC LIMIT 1;', (err, result) => {
                     if (err) {
                         console.error(err);
                         return;
@@ -203,7 +233,7 @@ const server = http.createServer(function (request, response) {
             }, 5000);
         }
     }
-    else if (elementFile === "paths") {      
+    else if (queries[0] == "paths") {      
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
