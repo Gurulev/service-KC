@@ -55,6 +55,42 @@ const server = http.createServer(function (request, response) {
             response.end(data);
         });
     }
+    else if (reqPath === "home") {
+        let data = "";
+        request.on("data", (chunk) => { //здесь приходят данные формы
+            data += chunk;
+        });
+        request.on("end", () => {  //здесь обрабатываются данные формы
+            const formData = require("querystring").parse(data);
+            let pass = formData.pass;
+            client.connect()
+                .then(() => console.log("Connected to PostgreSQL for enter"))
+                .catch(err => console.error("Connection error", err.stack));
+            
+            client.query(
+            `SELECT (password = crypt('${pass}', password)) 
+            AS password_match
+            FROM users
+            WHERE identifier = 1;`, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+               let validity = result.rows[0].password_match;
+                    client.end();
+                 
+                    if (validity == true) {
+                        fs.readFile("home.html", function (error, data) {
+                            response.end(data);
+                        });
+                    } else {
+                        console.log(validity);
+                        response.statusCode = 401;
+                        response.end("Invalid password");
+                    }
+            });
+        })
+    }
     else if (reqPath === "styles.css") {
         fs.readFile("styles.css", function (error, data) {
             response.end(data);

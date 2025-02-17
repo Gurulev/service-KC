@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сервис</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+    
+    </style>
+</head>
+<body>
+    <header>
+        <h1>СЕРВИС</h1><h1 id="kc">Керхер-Центр "Виктория-авто"</h1> 
+    </header>
+    
+    <ul id="menu">
+        <li id ="add" class="elMenu">Добавить</li>
+        <li id = "srchBtn" class="elMenu">Поиск</li>
+    </ul>
+
+
+<div id="myModal" class="modal">
+    <div id="slideshow-container">
+    </div>
+</div>
+
+
+    <span class="tooltip" id="tooltip">Всплывающая подсказка</span>
+    <div id="addItemContainer">
+        <form id="addItem" action="update" method="POST" accept-charset="UTF-8" autocomplete="off">
+            <input type="text" id="inputAddItem" name="" disabled><br>
+            <input type="hidden" id="idOrderItem" name="id_order">
+            <textarea name="comment" id="commentItem" rows="6" cols="25" disabled></textarea>
+            <select id="jobItem" name="job" disabled>
+                <option value="ремонт">Ремонт</option>
+                <option value="гар.ремонт">Гар.ремонт</option>
+            </select>
+            <input type="checkbox" id="manInputItem" name="men" style="width: 1em;" disabled>
+            <label id = "manLabelItem" for="manInputItem">Документы у менеджеров</label><br>
+            <input id="submitAddItem" type="submit" value="Записать">
+            <button type="button" id="slideShowBtn">Просмотреть</button>
+            <button type="button" id="closeAddItem">Отмена</button>
+    </form>
+    </div>
+    <form id="formAdd" action="index" method="POST" accept-charset="UTF-8">
+        <fieldset>
+            <legend><b> Новая запись </b></legend>
+            <input type="datetime" id="dateIn" name="dateIn" placeholder="Дата приема" pattern="[0-3]{1}[0-9]{1}[.][0-1]{1}[0-9]{1}[.][0-9]{4}" title="дд.мм.гггг" required>
+            <input type="datetime" id="dateOut" name="dateOut" placeholder="Дата выдачи" pattern="[0-3]{1}[0-9]{1}[.][0-1]{1}[0-9]{1}[.][0-9]{4}" title="дд.мм.гггг">
+            <select id="job" name="job" required>
+                <option value="ремонт">Ремонт</option>
+                <option value="гар.ремонт">Гар.ремонт</option>
+            </select>
+            <input type="text" id="comment" name="comment" placeholder="Комментарии...">
+            <input type="tel" id="phone" name="phone" maxlength="10" placeholder="Телефон без 8" pattern="[9]{1}[0-9]{9}" title="9#########" required><br>
+            <input type="text" id="device" name="device" placeholder="Аппарат" required>
+            <input type="text" id="client" name="client" placeholder="Ф.И.О. клиента"required>
+            <input type="checkbox" id="manInput" name="men" style="width: 1em;">
+            <label id = "manLabel" for="manInput">Документы у менеджеров</label>
+            <input type="datetime" id="docs" name="docs" placeholder="Документы" pattern="[0-3]{1}[0-9]{1}[.][0-1]{1}[0-9]{1}[.][0-9]{4}" title="дд.мм.гггг">
+            <input type="datetime" id="ready" name="ready" placeholder="Готов" pattern="[0-3]{1}[0-9]{1}[.][0-1]{1}[0-9]{1}[.][0-9]{4}" title="дд.мм.гггг"><br>
+            <input id="submitBtn" type="submit" value="Записать">
+        </fieldset>
+    </form>
+
+    <div id="searchCont">
+        <input type="date" id="dateStart">
+        <input type="date" id="dateEnd">
+        <button id="filterBtn">Применить</button>
+        <input type="text" id="search" style="width: 25rem;" placeholder="Поиск по наряд-заказу, телефону и фамилии..." autocomplete="off">
+        <input type="checkbox" id="outs" style="width: 1.25em;">
+        <label id = "outsLabel" for="outs">Невыданные наряд-заказы</label>
+    </div>
+    
+    <table>
+        <tbody id="ansServ"></tbody>
+    </table>
+    <button id="toTop" title="Вверх">Вверх</button>
+   <footer><button id="more">Загрузить ещё 100 позиций</button></footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
