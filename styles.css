@@ -17,8 +17,37 @@
 --red: rgba(182,26,45,0.3);
 }
 body {
+    
     font-family: Arial, Helvetica, sans-serif;
 }
+#passContainer {
+    display: block;
+    position: absolute;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0.3rem 0.5rem 0.3rem 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--white);
+    border: 0.2em solid var(--turquoise);
+    border-radius: 1rem;
+}
+#passContainer input[type="password"] {
+padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: var(--yellow);
+    height: 4rem;
+    border-top: 0.25rem solid var(--turquoiseClear);
+    margin-top: 1.5rem;
+    
+}
+
 header {
     background-image:url(icons/header.jpg) ;
     background-position: cover;
@@ -139,28 +168,29 @@ input[type="checkbox"] {
     z-index: 1;
     
 }
-
-#closeAddItem, #submitAddItem {
-    width: 5rem;
+#addItemContainer input:not(#submitAddItem){
+    width: 95%;
+}
+#closeAddItem, #submitAddItem, #slideShowBtn {
+    width: 6rem;
     border: none;
     color: var(--white);
     box-shadow: 0.1em 0.1em 0.5em var(--gray);
     font-weight: bold;
     padding: 0.2em;
     border-radius: 0.3em;
+    margin: 0.4em 0.1em 0.4em 0.1em;
 }
 #submitAddItem {
-    margin: 0.4em 0.1em 0.4em 0.1em;
     background-color: var(--oliveClear);
-    
-    
 }
 #closeAddItem {
-    margin: 0.4em 0.1em 0.4em 0.1em;
     background-color: var(--redClear);
-    
 }
-#inputAddItem, #manInputItem, #manLabelItem, #jobItem, #commentItem {
+#slideShowBtn{
+    background-color: var(--turquoiseClear);
+}
+#inputAddItem, #manInputItem, #manLabelItem, #jobItem, #commentItem, #slideShowBtn {
     display: none;
 }
 #commentItem {

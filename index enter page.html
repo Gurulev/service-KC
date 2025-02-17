@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сервис</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        #passContainer input[type="submit"] {
+            left: 50%;
+            transform: translate(50%, 0);
+            font-size: 1rem;
+            width: 5rem;
+            padding: 0;
+        }
+        #passContainer input[type="submit"]:active {
+            transform: translate(50%, 3px);
+        }
+    
+    </style>
+</head>
+<body>
+    <header>
+        <h1>СЕРВИС</h1><h1 id="kc">Керхер-Центр "Виктория-авто"</h1> 
+        </header>
+    
+        <form id="passContainer">
+            <input type="password" name="pass" placeholder="Введите пароль"><br>
+            <input type="submit" value="Войти">
+        </form>
+    
+
+    <div class="footer"></div>
+    <script src="scripts.js"></script>
+</body>
+</html>

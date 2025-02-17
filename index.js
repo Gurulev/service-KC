@@ -43,8 +43,8 @@ const server = http.createServer(function (request, response) {
     const queries = reqPath.split("/");
     let lastQuery = reqPath.substring(reqPath.lastIndexOf("/") + 1);
     //console.log("zhopa:" + queries);
-    const { Client } = require('pg');
-    const client = new Client({
+    const { Client, Pool } = require('pg');
+    const client = new Pool({
         host: "localhost",
         user: "postgres",
         password: "15426378",
@@ -105,20 +105,20 @@ const server = http.createServer(function (request, response) {
             client.end();
         });
     }
-    else if (queries[0] == "more") {      
+    else if (queries[0] == "more") {
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
         client.query(`SELECT * FROM orders ORDER BY id_order DESC LIMIT 100 OFFSET ${lastQuery}`, (err, result) => {
             if (err) {
-            console.error(err);
-            return;
+                console.error(err);
+                return;
             }
             const answer = JSON.stringify(result.rows);
             console.log("Answer SQL complete");
             response.end(answer);
-        client.end();
-    });          
+            client.end();
+        });
     }
     else if (reqPath === "index") {
         let data = "";
@@ -167,9 +167,9 @@ const server = http.createServer(function (request, response) {
                     console.error(err);
                     return;
                 }
-            console.log("Adding complete");          
-        client.end();
-    });
+                console.log("Adding complete");
+                client.end();
+            });
         })
         response.statusCode = 301;
         response.setHeader('Location', '/');
@@ -200,9 +200,9 @@ const server = http.createServer(function (request, response) {
                     console.error(err);
                     return;
                 }
-            console.log("Adding complete");          
-        client.end();
-    });
+                console.log("Adding complete");
+                client.end();
+            });
         })
         response.statusCode = 301;
         response.setHeader('Location', '/');
@@ -233,19 +233,19 @@ const server = http.createServer(function (request, response) {
             }, 5000);
         }
     }
-    else if (queries[0] == "paths") {      
+    else if (queries[0] == "paths") {
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
-        client.query('SELECT img FROM orders WHERE id_order ='+lastQuery, (err, result) => {
+        client.query('SELECT img FROM orders WHERE id_order =' + lastQuery, (err, result) => {
             if (err) {
-            console.error(err);
-            return;
+                console.error(err);
+                return;
             }
             console.log("Answer SQL complete");
             response.end(result.rows[0].img);
-        client.end();
-    });          
+            client.end();
+        });
     }
     else if (reqPath == "upload") {
         let formFile = new formidable.IncomingForm();
@@ -256,42 +256,57 @@ const server = http.createServer(function (request, response) {
                 return
             }
             let id = fields.id_order[0];
-            let imagePaths = [];
+            client.connect()
+                .then(() => console.log("Connected to PostgreSQL for adding data"))
+                .catch(err => console.error("Connection error", err.stack));
+            client.query(`SELECT img FROM orders WHERE id_order = ${id};`, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                let imagePaths = result.rows[0].img;
+                save(imagePaths, id, files);
+            })
+            function save(imagePaths, id, files) { 
+            let first;
+            if (imagePaths == null) {
+                first = 0;
+                imagePaths = "";
+            } else {
+                first = imagePaths.split("*").length - 1;
+            }
             for (let i = 0; files.file.length > i; i++) {
                 let oldpath = files.file[i].filepath;
                 let oldName = files.file[i].originalFilename;
                 let point = oldName.lastIndexOf(".");
                 let exp = oldName.substring(point);
-                let newpath = `C:/Users/russi/Desktop/service-KC/images/${id}_${i+1}${exp}`;
-                fs.rename(oldpath, newpath, function (err) {
+                let newpath = `${__dirname}/images/${id}_${first + i + 1}${exp}`;
+            fs.rename(oldpath, newpath, function (err) {
                     if (err) throw err;
                 });
-                imagePaths += `images/${id}_${i+1}${exp}*`;
+                imagePaths += `images/${id}_${first + i + 1}${exp}*`;
             }
-            let dataQuery = `UPDATE orders SET img = '${imagePaths}' WHERE id_order = ${id};`;
             client.connect()
                 .then(() => console.log("Connected to PostgreSQL for adding data"))
                 .catch(err => console.error("Connection error", err.stack));
-            
-            client.query(dataQuery, (err, result) => {
+            client.query(`UPDATE orders SET img = '${imagePaths}' WHERE id_order = ${id};`, (err, result) => {
                 if (err) {
                     console.error(err);
                     return;
                 }
-            console.log("Adding complete");          
-            client.end();
-        });
-                response.statusCode = 301;
-                response.setHeader('Location', '/');
-                response.end();
+                console.log("Adding complete");
+                client.end();
+            });
+            response.statusCode = 301;
+            response.setHeader('Location', '/');
+            response.end();
             if (err) {
                 res.write(err);
-            }
-            })
+                }
+            } 
         }
-        
-    
-        
+        )
+    }
     else {       
         response.statusCode = 404;
         response.end("Not found!!!");

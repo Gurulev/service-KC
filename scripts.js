@@ -32,10 +32,11 @@ let outs = document.querySelector("#outs");
 let dateStart = document.querySelector("#dateStart");
 let dateEnd = document.querySelector("#dateEnd");
 let filterBtn = document.querySelector("#filterBtn");
-
+let slideShowBtn = document.querySelector("#slideShowBtn");
 let arrPaths = [];
 let currentNumb;
 let totalImg;
+let idForFoto;
 let modal = document.querySelector("#myModal");
 let slideCont = document.querySelector("#slideshow-container");
 let prev = document.querySelector("#prev");
@@ -261,13 +262,10 @@ function disabledDocs() {
 function addItemShow(event) {
     let target = event.target;
     let itemClass = target.className;
-    if (itemClass == "foto" && target.getAttribute("src") == "icons/imgyes.png") {
-            modalShow(event);
-            return
-        }
     let text = target.innerHTML;
     let windWidth = document.documentElement.clientWidth;
     let windHeight = document.documentElement.clientHeight;
+    idForFoto = Number(event.target.parentElement.parentElement.firstElementChild.innerHTML);
     let valueIdOrder = Number(target.parentElement.firstElementChild.innerHTML);
     let valueIdOrderAlt = Number(event.target.parentElement.parentElement.firstElementChild.innerHTML);
     let posX = event.clientX;
@@ -283,6 +281,7 @@ function addItemShow(event) {
         switch (itemClass) {
             case "col1":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
@@ -303,6 +302,7 @@ function addItemShow(event) {
                 break;
             case "col2":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
@@ -323,6 +323,7 @@ function addItemShow(event) {
                 break;
             case "col3":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
@@ -343,6 +344,7 @@ function addItemShow(event) {
                 break;
             case "col4":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = true;
@@ -359,6 +361,7 @@ function addItemShow(event) {
                 break;
             case "col5":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = true;
@@ -376,6 +379,7 @@ function addItemShow(event) {
                 break;
             case "col6":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
@@ -397,6 +401,7 @@ function addItemShow(event) {
                 break;
             case "col7":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
@@ -417,6 +422,7 @@ function addItemShow(event) {
                 break;
             case "col8":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
@@ -437,6 +443,7 @@ function addItemShow(event) {
                 break;
             case "col9":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
@@ -457,6 +464,7 @@ function addItemShow(event) {
                 break;
             case "col10":
                 addItem.removeAttribute("enctype");
+                slideShowBtn.style.display = "none";
                 addItem.action = "update";
                 submitAddItem.value = "Записать";
                 inputAddItem.disabled = false;
@@ -476,6 +484,16 @@ function addItemShow(event) {
                 inputAddItem.title = "дд.мм.гггг";
                 break;
             case "foto":
+                
+                if (itemClass == "foto" && target.getAttribute("src") == "icons/imgyes.png") {
+                    slideShowBtn.style.display = "block";
+                    submitAddItem.value = "Добавить";
+                    
+                }
+                else {
+                    slideShowBtn.style.display = "none";
+                    submitAddItem.value = "Загрузить";
+                }
                 inputAddItem.disabled = false;
                 inputAddItem.style.display = "initial";
                 commentItem.disabled = true;
@@ -494,7 +512,7 @@ function addItemShow(event) {
                 inputAddItem.removeAttribute("placeholder");
                 addItem.enctype = "multipart/form-data";
                 addItem.action = "upload";
-                submitAddItem.value = "Загрузить";
+                
                 break;
             default:
                 break;
@@ -512,7 +530,7 @@ function addItemShow(event) {
         addItemCont.style.left = posX + "px";
         addItemCont.style.top = posY + "px";
         inputAddItem.focus();
-        //.textContent = text;
+        
     }
     event.stopPropagation();
 }
@@ -582,17 +600,16 @@ function searchShow() {
         searchCont.style.display = "none";
     }
 }
-function modalShow(event) {
-    let id = Number(event.target.parentElement.parentElement.firstElementChild.innerHTML);
-    path();
-    async function path() {
-        const response = await fetch("/paths/" + id);
-        const responseText = await response.text();
-        modal.style.display = "block";
-        arrPaths = responseText.split("*");
-        totalImg = arrPaths.length - 1;
-        slideCont.innerHTML =
-            `<div class="myslides fade">
+
+async function modalShow() {
+    addItemCont.style.display = "none";
+    const response = await fetch("/paths/" + idForFoto);
+    const responseText = await response.text();
+    modal.style.display = "block";
+    arrPaths = responseText.split("*");
+    totalImg = arrPaths.length - 1;
+    slideCont.innerHTML =
+    `<div class="myslides fade">
     <div id="numberText">1/${totalImg}</div>
     <img id="modal-content" src="${arrPaths[0]}" alt="img">
     <div id="text">${arrPaths[0].substring(arrPaths[0].lastIndexOf("/") + 1)}</div>
@@ -605,8 +622,8 @@ function modalShow(event) {
         document.querySelector("#prev").addEventListener("click", prevImg, false);
         document.querySelector("#close").addEventListener("click", modalClose, false);
         currentNumb = 1;
-    }   
-}
+}   
+
 function nextImg() {
     if (totalImg > currentNumb) {
         let nextNumb = currentNumb + 1;
@@ -907,3 +924,4 @@ moreBtn.addEventListener("click", more, false);
 topBtn.addEventListener("click", totopFunc, false);
 window.onscroll = function () { scrollFunc() };
 filterBtn.addEventListener("click", filter, false);
+slideShowBtn.addEventListener("click", modalShow, false);
