@@ -50,30 +50,10 @@ let formfilter = document.querySelector("#formFilter");
 
 let colorRow;
 
-const revision = new EventSource("/check");
-revision.onmessage = (event) => {
-  //Здесь обработка ответа сервера
-    alert(event.data);
-};
-
 const days = [0,"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
             "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"];
 const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-form.addEventListener("submit", function (evt) {
-    evt.preventDefault();
-    
-    let dateIn = dateInInput.value;
-    let phone = phoneInput.value;
-    let device = deviceInput.value;
-    let client = clientInput.value;
-    if (!dateIn || !job || !phone || !device || !client) {
-        alert("Заполните обязательные поля!");
-        return;
-    }
-    form.submit();
-    let btn = this.querySelector("input[type=submit]");
-    btn.disabled = true; //--- предотвращение повторного нажатия на кнопку отправки
-    });
+
 
 /*async function add(){
     const response = await fetch("/hello");
@@ -207,6 +187,7 @@ async function requestToSQL() {
             row.style.backgroundColor = "var(--yellow)";
         }      
     }
+    await setInterval(check, 10000);
 }
 function fieldsetShow() {
     let fieldsetStatus = fieldset.style.display;
@@ -217,7 +198,7 @@ function fieldsetShow() {
         searchCont.style.display = "none"
         fieldset.style.display = "block";
         fieldset.style.animation = "open 2s ease";
-        dateInInput.focus();        
+        dateInInput.focus();   
     }
     else {
         fieldset.style.animation = "closed 1s";
@@ -600,7 +581,6 @@ function searchShow() {
         searchCont.style.display = "none";
     }
 }
-
 async function modalShow() {
     addItemCont.style.display = "none";
     const response = await fetch("/paths/" + idForFoto);
@@ -623,7 +603,6 @@ async function modalShow() {
         document.querySelector("#close").addEventListener("click", modalClose, false);
         currentNumb = 1;
 }   
-
 function nextImg() {
     if (totalImg > currentNumb) {
         let nextNumb = currentNumb + 1;
@@ -774,7 +753,6 @@ function totopFunc() {
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
 }
-
 async function filter() {
         
     const response = await fetch(`/filter/${dateStart.value}/${dateEnd.value}`);
@@ -903,7 +881,65 @@ async function filter() {
             row.style.backgroundColor = "var(--yellow)";
         }      
     }
-    } 
+}
+async function check() {
+    let id = ansServ.children[1].children[0].innerText;
+    const response = await fetch(`/check/${id}`);
+    const responseText = await response.text();
+    if (responseText == "false") {
+        alert("В базе произошли изменения! Обновите страницу!");
+    }
+}
+addItem.addEventListener("submit", async function (evt) {
+    evt.preventDefault();
+    let action = addItem.getAttribute("action");
+    const formData = new FormData(addItem);
+    console.log(action);
+    const response = await fetch(`/${action}`, {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => {
+            if (response.status == 200) {
+                addItem.reset();
+                addItemCont.style.display = "none";
+                requestToSQL();
+            };
+        })
+        .catch((error) => {
+            alert(error);
+        });
+    
+});
+form.addEventListener("submit", async function (evt) {
+    evt.preventDefault();
+    const formData = new FormData(form);
+    let dateIn = dateInInput.value;
+    let phone = phoneInput.value;
+    let device = deviceInput.value;
+    let client = clientInput.value;
+    if (!dateIn || !job || !phone || !device || !client) {
+        alert("Заполните обязательные поля!");
+        return;
+    }
+    const response = await fetch("/add", {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => {
+            requestToSQL();
+            if (response.status == 200) {
+            form.reset();
+            fieldset.style.animation = "closed 1s";
+            setTimeout(() => { fieldset.style.display = "none"; }, 700);
+            
+        };
+        })
+        .catch((error) => {
+            alert(error);
+        });
+});
+
 
 
 

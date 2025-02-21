@@ -2,47 +2,16 @@ const http = require("http");
 const fs = require("fs");
 const formidable = require("formidable");
 const { ifError } = require("assert");
-let prevId = 0;
 
-/*function checkPg (response) {
-    const { Client } = require('pg');
-    const checkClient = new Client({
-        host: "localhost",
-        user: "postgres",
-        password: "15426378",
-        database: "kc-service",
-    });
-    checkClient.connect()
-        .then(() => console.log("Checked"))
-        .catch(err => console.error("Connection error", err.stack));
-    checkClient.query('SELECT id_order FROM orders ORDER BY id_order DESC LIMIT 1;', (err, result) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        let id = result.rows[0].id_order;
-        if (prevId == 0) {
-            prevId = id;
-        }
-        else if (prevId !== id) {
-            console.log("ALARMA");
-            prevId = id;          
-        }
-        
-        checkClient.end();
-    });
-};
-setInterval(checkPg, 5000);*/
-//конец проверки измнений
+
+
 //Здесь начинается сервер.
 
-const server = http.createServer(function (request, response) {
+const server = http.createServer(async function (request, response) {
     console.log(`Запрошенный адрес: ${request.url}`);
     const reqPath = request.url.substring(1); // здесь получаем название запрос, напр."hello"
     //Далее начинается обработка запроса и отправка ответа.
     const queries = reqPath.split("/");
-    let lastQuery = reqPath.substring(reqPath.lastIndexOf("/") + 1);
-    //console.log("zhopa:" + queries);
     const { Client, Pool } = require('pg');
     const client = new Pool({
         host: "localhost",
@@ -50,12 +19,12 @@ const server = http.createServer(function (request, response) {
         password: "15426378",
         database: "kc-service",
     });
-    if (reqPath === "") {
+    if (queries[0] === "") {
         fs.readFile("index.html", function (error, data) {
             response.end(data);
         });
     }
-    else if (reqPath === "home") {
+    else if (queries[0] === "home") {
         let data = "";
         request.on("data", (chunk) => { //здесь приходят данные формы
             data += chunk;
@@ -68,7 +37,7 @@ const server = http.createServer(function (request, response) {
                 .catch(err => console.error("Connection error", err.stack));
             
             client.query(
-            `SELECT (password = crypt('${pass}', password)) 
+                `SELECT (password = crypt('${pass}', password)) 
             AS password_match
             FROM users
             WHERE identifier = 1;`, (err, result) => {
@@ -76,27 +45,26 @@ const server = http.createServer(function (request, response) {
                     console.error(err);
                     return;
                 }
-               let validity = result.rows[0].password_match;
-                    client.end();
+                let validity = result.rows[0].password_match;
+                client.end();
                  
-                    if (validity == true) {
-                        fs.readFile("home.html", function (error, data) {
-                            response.end(data);
-                        });
-                    } else {
-                        console.log(validity);
-                        response.statusCode = 401;
-                        response.end("Invalid password");
-                    }
+                if (validity == true) {
+                    fs.readFile("home.html", function (error, data) {
+                        response.end(data);
+                    });
+                } else {
+                    response.statusCode = 401;
+                    response.end("Invalid password");
+                }
             });
         })
     }
-    else if (reqPath === "styles.css") {
+    else if (queries[0] === "styles.css") {
         fs.readFile("styles.css", function (error, data) {
             response.end(data);
         });
     }
-    else if (reqPath === "scripts.js") {
+    else if (queries[0] === "scripts.js") {
         fs.readFile("scripts.js", function (error, data) {
             response.end(data);
         });
@@ -111,7 +79,7 @@ const server = http.createServer(function (request, response) {
             response.end(data);
         });
     }
-    else if (reqPath === "sql") {
+    else if (queries[0] === "sql") {
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
@@ -145,7 +113,7 @@ const server = http.createServer(function (request, response) {
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
-        client.query(`SELECT * FROM orders ORDER BY id_order DESC LIMIT 100 OFFSET ${lastQuery}`, (err, result) => {
+        client.query(`SELECT * FROM orders ORDER BY id_order DESC LIMIT 100 OFFSET ${queries[1]}`, (err, result) => {
             if (err) {
                 console.error(err);
                 return;
@@ -156,44 +124,40 @@ const server = http.createServer(function (request, response) {
             client.end();
         });
     }
-    else if (reqPath === "index") {
-        let data = "";
-        request.on("data", (chunk) => { //здесь приходят данные формы
-            data += chunk;
-        });
-        request.on("end", () => {  //здесь обрабатываются данные формы
-            const formData = require("querystring").parse(data);
+    else if (queries[0] === "add") {
+        let formFile = await new formidable.IncomingForm();
+        await formFile.parse(request, function (err, fields, files) {
             let formDateOut = "";
             let formComment = "";
             let formDocs = "";
             let formReady = "";
-            if (formData.dateOut == "") {
+            if (fields.dateOut[0] == "") {
                 formDateOut = null;
             }
             else {
-                formDateOut = `'${formData.dateOut}'`;
+                formDateOut = `'${fields.dateOut[0]}'`;
             }
-            if (formData.comment == "") {
+            if (fields.comment[0] == "") {
                 formComment = null;
             }
             else {
-                formComment = `'${formData.comment}'`;
+                formComment = `'${fields.comment[0]}'`;
             }
-            if (formData.docs == "") {
+            if (fields.docs[0] == "") {
                 formDocs = null;
             }
             else {
-                formDocs = `'${formData.docs}'`;
+                formDocs = `'${fields.docs[0]}'`;
             }
-            if (formData.ready == "") {
+            if (fields.ready[0] == "") {
                 formReady = null;
             }
             else {
-                formReady = `'${formData.ready}'`;
+                formReady = `'${fields.ready[0]}'`;
             }
-            let dataQuery = `INSERT INTO orders (date_in,date_out,job,comment,phone,device,client,docs,ready) VALUES('${formData.dateIn}',
-            ${formDateOut},'${formData.job}',${formComment},${formData.phone},'${formData.device}',
-            '${formData.client}',${formDocs},${formReady});`;
+            let dataQuery = `INSERT INTO orders (date_in,date_out,job,comment,phone,device,client,docs,ready) VALUES('${fields.dateIn[0]}',
+            ${formDateOut},'${fields.job[0]}',${formComment},${fields.phone[0]},'${fields.device[0]}',
+            '${fields.client[0]}',${formDocs},${formReady});`;
             client.connect()
                 .then(() => console.log("Connected to PostgreSQL for adding data"))
                 .catch(err => console.error("Connection error", err.stack));
@@ -206,31 +170,27 @@ const server = http.createServer(function (request, response) {
                 console.log("Adding complete");
                 client.end();
             });
-        })
-        response.statusCode = 301;
-        response.setHeader('Location', '/');
-        response.end();
-    }
-    
-    else if (reqPath === "update") { //данные из изменения элемента таблицы
-        let data = "";
-        request.on("data", (chunk) => { //здесь приходят данные формы
-            data += chunk;
+            response.statusCode = 200;
+            response.end();
         });
-        request.on("end", () => {  //здесь обрабатываются данные формы
-            const formData = require("querystring").parse(data);
-            
-            let id_order = formData.id_order;
-            Object.defineProperties(formData, {
+    
+
+    }
+    else if (queries[0] === "update") { //данные из изменения элемента таблицы
+        
+        let formFile = await new formidable.IncomingForm();
+        await formFile.parse(request, function (err, fields, files) {
+            let id_order = fields.id_order[0];
+                       
+            Object.defineProperties(fields, {
                 id_order: { enumerable: false },
                 man: { enumerable: false }
             });
-            let element = Object.keys(formData);
-            let dataQuery = `UPDATE orders SET ${element[0]} = '${formData[element[0]]}' WHERE id_order = ${id_order};`;
+            let element = Object.keys(fields);
+            let dataQuery = `UPDATE orders SET ${element[0]} = '${fields[element[0]]}' WHERE id_order = ${id_order};`;
             client.connect()
-                .then(() => console.log("Connected to PostgreSQL for adding data"))
-                .catch(err => console.error("Connection error", err.stack));
-            
+            .then(() => console.log("Connected to PostgreSQL for adding data"))
+            .catch(err => console.error("Connection error", err.stack));
             client.query(dataQuery, (err, result) => {
                 if (err) {
                     console.error(err);
@@ -239,41 +199,37 @@ const server = http.createServer(function (request, response) {
                 console.log("Adding complete");
                 client.end();
             });
-        })
-        response.statusCode = 301;
-        response.setHeader('Location', '/');
-        response.end();
+            response.statusCode = 200;
+            response.end();
+        });
+
+        
+        
+        
+        
     }
-    else if (reqPath === "check") {
-        if (request.headers.accept && request.headers.accept === "text/event-stream") {
-            client.connect()
+    else if (queries[0] === "check") {
+        let clientId = Number(queries[1]);
+        client.connect()
                 .then(() => console.log("Checked"))
                 .catch(err => console.error("Connection error", err.stack));
-            setInterval(() => {
-                client.query('SELECT id_order FROM orders ORDER BY id_order DESC LIMIT 1;', (err, result) => {
-                    if (err) {
-                        console.error(err);
-                        return;
-                    }
-                    let id = result.rows[0].id_order;
-                    if (prevId == 0) {
-                        prevId = id;
-                    }
-                    else if (prevId !== id) {
-                        console.log("ALARMA");
-                        sendEvent(response);
-                        prevId = id;
-                    }
-                    //client.end();
-                });
-            }, 5000);
-        }
-    }
+        client.query('SELECT id_order FROM orders ORDER BY id_order DESC LIMIT 1;', (err, result) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            let id = Number(result.rows[0].id_order);
+            if (id !== clientId) {
+                response.end("false");
+            } else { response.end(); }
+            client.end();
+        });
+}
     else if (queries[0] == "paths") {
         client.connect()
             .then(() => console.log("Connected to PostgreSQL"))
             .catch(err => console.error("Connection error", err.stack));
-        client.query('SELECT img FROM orders WHERE id_order =' + lastQuery, (err, result) => {
+        client.query('SELECT img FROM orders WHERE id_order =' + queries[1], (err, result) => {
             if (err) {
                 console.error(err);
                 return;
@@ -283,7 +239,7 @@ const server = http.createServer(function (request, response) {
             client.end();
         });
     }
-    else if (reqPath == "upload") {
+    else if (queries[0] == "upload") {
         let formFile = new formidable.IncomingForm();
         formFile.parse(request, function (err, fields, files) {
             if (Object.keys(fields).length === 0) {
@@ -333,8 +289,7 @@ const server = http.createServer(function (request, response) {
                 console.log("Adding complete");
                 client.end();
             });
-            response.statusCode = 301;
-            response.setHeader('Location', '/');
+            response.statusCode = 200;
             response.end();
             if (err) {
                 res.write(err);
@@ -364,14 +319,13 @@ const server = http.createServer(function (request, response) {
 
 }).listen(3000, function () { console.log("Сервер запущен на порте 3000"); });//Эту строку не трогать! Следить за закрытием функции createServer
 
-function sendEvent(response) {
-    response.writeHead(200, {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connecrion": "keep-alive"
-    });
-    checkMessage(response);
-}
-function checkMessage(response) {
-    response.write("data: " + "В базе произошли изменения. Обновите страницу!" + "\n\n");
-}
+
+    
+    
+    
+
+
+
+
+
+
