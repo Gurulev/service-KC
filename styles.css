@@ -234,7 +234,8 @@ th {
     text-align: center;
 }
 tr {
-border-bottom: 0.01rem solid var(--gray);
+    user-select: none;
+    border-bottom: 0.01rem solid var(--gray);
 }
 
 tr:has(th) {

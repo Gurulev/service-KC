@@ -261,6 +261,7 @@ function addItemShow(event) {
         addItemCont.style.display = "inline-block";
         switch (itemClass) {
             case "col1":
+                inputAddItem.style.visibility = "visible"
                 addItem.removeAttribute("enctype");
                 slideShowBtn.style.display = "none";
                 addItem.action = "update";
@@ -282,6 +283,7 @@ function addItemShow(event) {
                 inputAddItem.title = "дд.мм.гггг";
                 break;
             case "col2":
+                inputAddItem.style.visibility = "visible"
                 addItem.removeAttribute("enctype");
                 slideShowBtn.style.display = "none";
                 addItem.action = "update";
@@ -303,6 +305,7 @@ function addItemShow(event) {
                 inputAddItem.title = "дд.мм.гггг";
                 break;
             case "col3":
+                inputAddItem.style.visibility = "visible"
                 addItem.removeAttribute("enctype");
                 slideShowBtn.style.display = "none";
                 addItem.action = "update";
@@ -359,6 +362,7 @@ function addItemShow(event) {
                 commentItem.focus();
                 break;
             case "col6":
+                inputAddItem.style.visibility = "visible"
                 addItem.removeAttribute("enctype");
                 slideShowBtn.style.display = "none";
                 addItem.action = "update";
@@ -381,6 +385,7 @@ function addItemShow(event) {
                 inputAddItem.title = "9#########";
                 break;
             case "col7":
+                inputAddItem.style.visibility = "visible"
                 addItem.removeAttribute("enctype");
                 slideShowBtn.style.display = "none";
                 addItem.action = "update";
@@ -402,6 +407,7 @@ function addItemShow(event) {
                 inputAddItem.removeAttribute("title");
                 break;
             case "col8":
+                inputAddItem.style.visibility = "visible"
                 addItem.removeAttribute("enctype");
                 slideShowBtn.style.display = "none";
                 addItem.action = "update";
@@ -423,6 +429,7 @@ function addItemShow(event) {
                 inputAddItem.placeholder = "Ф.И.О. клиента";
                 break;
             case "col9":
+                inputAddItem.style.visibility = "visible"
                 addItem.removeAttribute("enctype");
                 slideShowBtn.style.display = "none";
                 addItem.action = "update";
@@ -444,6 +451,7 @@ function addItemShow(event) {
                 inputAddItem.title = "дд.мм.гггг";
                 break;
             case "col10":
+                inputAddItem.style.visibility = "visible"
                 addItem.removeAttribute("enctype");
                 slideShowBtn.style.display = "none";
                 addItem.action = "update";
@@ -881,6 +889,7 @@ async function filter() {
             row.style.backgroundColor = "var(--yellow)";
         }      
     }
+    searchCont.style.display = "none";
 }
 async function check() {
     let id = ansServ.children[1].children[0].innerText;

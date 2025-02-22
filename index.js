@@ -127,6 +127,8 @@ const server = http.createServer(async function (request, response) {
     else if (queries[0] === "add") {
         let formFile = await new formidable.IncomingForm();
         await formFile.parse(request, function (err, fields, files) {
+            console.log(fields.dateIn);
+            
             let formDateOut = "";
             let formComment = "";
             let formDocs = "";
