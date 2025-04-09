@@ -16,7 +16,7 @@ const server = http.createServer(async function (request, response) {
     const client = new Pool({
         host: "localhost",
         user: "postgres",
-        password: "15426378",
+        password: "",
         database: "kc-service",
     });
     if (queries[0] === "") {
